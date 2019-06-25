@@ -8,16 +8,16 @@ var c2 = document.getElementById("canvas2");
 var main = c2.getContext("2d");
 var c3 = document.getElementById("canvas3");
 var eff1 = c3.getContext("2d");
-var c4 = document.getElementById("canvas3");
+var c4 = document.getElementById("canvas4");
 var eff2 = c4.getContext("2d");
 
 var downX,downY,moveX,moveY,upX,upY;
 var downFlag = 0;//0:デフォルト 1:原子 2:結合 3:空
-var downId = "";
+var downId = 10000;
 var moveFlag = 0;//0:デフォルト 1:原子 2:結合
 var moveId = 0;
 var upFlag = 0;
-var demiAngle;
+var demiAngle = 0.1;
 
 window.onload = function(){
     background();
@@ -27,7 +27,8 @@ window.onload = function(){
 c4.onmousedown = function(down){
     downX = down.offsetX;
     downY = down.offsetY;
-    if(status == 0){
+    console.log("down");
+    if(status==0){
         if(moveFlag==1){
             downFlag = 1;
             downId = moveId;
@@ -39,6 +40,7 @@ c4.onmousedown = function(down){
             return;
         }else{
             downFlag = 3;
+            ring(downX,downY);
             return;
         }
     }
@@ -207,7 +209,7 @@ function direction(nowX,nowY,targetX,targetY){
             return -Math.PI/2;
         }
     }
-    var angle = math.atan((nowX-targetX)/-(nowY-targetY));
+    var angle = Math.atan((nowX-targetX)/-(nowY-targetY));
     if((nowY-targetY)>0){
         angle += Math.PI;
     }
