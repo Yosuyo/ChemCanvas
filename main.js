@@ -13,11 +13,10 @@ var eff2 = c4.getContext("2d");
 
 var downX,downY,moveX,moveY,upX,upY;
 var downFlag = 0;//0:デフォルト 1:原子 2:結合 3:空
-var downId = 10000;
+var downId = 999;
 var moveFlag = 0;//0:デフォルト 1:原子 2:結合
-var moveId = 0;
-var upFlag = 0;
-var demiAngle = 0.1;
+var moveId = 999;
+var demiAngle = 1;
 
 window.onload = function(){
     background();
@@ -27,7 +26,6 @@ window.onload = function(){
 c4.onmousedown = function(down){
     downX = down.offsetX;
     downY = down.offsetY;
-    console.log("down");
     if(status==0){
         if(moveFlag==1){
             downFlag = 1;
@@ -72,6 +70,7 @@ c4.onmousemove = function(move){
         }
     });
     if(downFlag==1){
+        moveFlag = 0;
         var ang = direction(moveX,moveY,atoms[downId][1],atoms[downId][2]);
         if(ang==demiAngle){
             return;
@@ -83,11 +82,12 @@ c4.onmousemove = function(move){
             return;
         }
     }else if(downFlag==3){
-        //ここに方向判定関数
+        moveFlag = 0;
         var aang = direction(moveX,moveY,downX,downY);
         if(aang==demiAngle){
             return;
         }else{
+            clear(eff1);
             clear(eff2);
             ring(downX,downY);
             demiAngle = aang;
@@ -102,7 +102,7 @@ c4.onmousemove = function(move){
             }else if(moveFlag==2&&moveId!=bond[0]){
                 clear(eff1);
             }
-            downFlag = 2;
+            moveFlag = 2;
             moveId = bond[0];
             bondMark(bond[0]);
             return;
@@ -112,6 +112,8 @@ c4.onmousemove = function(move){
     moveFlag = 0;
 };
 c4.onmouseup = function(up){
+    clear(eff1);
+    clear(eff2);
     upX = up.offsetX;
     upY = up.offsetY;
     switch(downFlag){
@@ -120,13 +122,41 @@ c4.onmouseup = function(up){
         case 1:
             switch(moveFlag){
                 case 0:
+                    radLine(atoms[downId][1],atoms[downId][2],demiAngle,true);
+                    break;
                 case 1:
+                    newBond(downId,moveId);
+                    break;
                 case 2:
+                    break;
             }
             break;
         case 2:
+            if(moveFlag==2){
+                if(downId==moveId){
+                    //二重結合への変更
+                }
+            }
+            break;
         case 3:
+            switch(moveFlag){
+                case 0:
+                    radLine(downX,downY,demiAngle,true);
+                    break;
+                case 1:
+                    var a = newAtom(downX,downY,12);
+                    newBond(a,moveId);
+                    break;
+                case 2:
+                    break;
+            }
+            break;
     }
+    downFlag = 0;
+    downId = 999;
+    moveFlag = 0;
+    moveId = 999;
+    demiAngle = 1;
 };
 
 function background(){
@@ -160,7 +190,7 @@ function newBond(a,b){
 function demiBond(a,b){
     eff2.beginPath();
     eff2.lineWidth = 2;
-    eff2.lineStyle = "rgba(0,255,255,0.5)";
+    eff2.strokeStyle = "rgba(0,255,255,0.5)";
     eff2.moveTo(atoms[a][1],atoms[a][2]);
     eff2.lineTo(atoms[b][1],atoms[b][2]);
     eff2.stroke();
@@ -168,7 +198,7 @@ function demiBond(a,b){
 function demiBond2(x,y,b){
     eff2.beginPath();
     eff2.lineWidth = 2;
-    eff2.lineStyle = "rgba(0,255,255,0.5)";
+    eff2.strokeStyle = "rgba(0,255,255,0.5)";
     eff2.moveTo(x,y);
     eff2.lineTo(atoms[b][1],atoms[b][2]);
     eff2.stroke();
@@ -250,7 +280,7 @@ function radLine(x,y,angle,bool){
     }else{
         eff2.beginPath();
         eff2.lineWidth = 2;
-        eff2.lineStyle = "rgba(0,255,255,0.5)";
+        eff2.strokeStyle = "rgba(0,255,255,0.5)";
         eff2.moveTo(x,y);
         eff2.lineTo(newX,newY);
         eff2.stroke();
