@@ -1,5 +1,6 @@
-var winWidth = 700;
-var winHeight = 600;
+var winWidth = 700; //キャンバス横幅
+var winHeight = 600; //キャンバス縦幅
+var len = 40; //結合長
 
 var c1 = document.getElementById("canvas1");
 var base = c1.getContext("2d");
@@ -10,9 +11,11 @@ var eff1 = c3.getContext("2d");
 var c4 = document.getElementById("canvas3");
 var eff2 = c4.getContext("2d");
 
-var downX,downY,upX,upY;
+var downX,downY,moveX,moveY,upX,upY;
 var downFlag = 0;//0:デフォルト 1:原子 2:結合 3:空
-var moveFlag = 0;
+var downId = "";
+var moveFlag = 0;//0:デフォルト 1:原子 2:結合
+var moveId = 0;
 var upFlag = 0;
 
 window.onload = function(){
@@ -24,11 +27,57 @@ c4.onmousedown = function(down){
     downX = down.offsetX;
     downY = down.offsetY;
     if(status == 0){
-        atoms.forEach(function(arrey){
-            //ここに円判定
-        });
-
+        if(moveFlag==1){
+            downFlag = 1;
+            downId = moveId;
+            ring(atoms[downId][1],atoms[downId][2]);
+            return;
+        }else if(moveFlag==2){
+            downFlag = 2;
+            downId = downFlag;
+            return;
+        }else{
+            downFlag = 3;
+            return;
+        }
     }
+};
+c4.onmousemove = function(move){
+    moveX = move.offsetX;
+    moveY = move.offsetY;
+    atoms.forEach(function(atom){
+        if(inRound(moveX,moveY,atom[1],atom[2])){
+            if(moveFlag==1&&moveId!=atom[0]){
+                clear(eff1);
+            }else if(moveFlag==2){
+                clear(eff1);
+            }
+            moveFlag = 1;
+            moveId = atom[0];
+            atomMark(atom[0]);
+            return;
+        }
+    });
+    bonds.forEach(function(bond){
+        if(inRound(downX,downY,bond[1],bond[2])){
+            if(moveFlag==1){
+                clear(eff1);
+            }else if(moveFlag==2&&moveId!=bond[0]){
+                clear(eff1);
+            }
+            downFlag = 2;
+            moveId = bond[0];
+            bondMark(bond[0]);
+            return;
+        }
+    });
+    clear(eff1);
+    if(downFlag==1){
+        ring(atoms[downId][1],atoms[downId][2]);
+    }else if(downFlag==3){
+        //ここに方向判定関数
+    }
+    moveFlag = 0;
 };
 c4.onmouseup = function(up){
     upX = up.offsetX;
@@ -37,10 +86,14 @@ c4.onmouseup = function(up){
         case 0:
             break;
         case 1:
-            var first = newAtom(downX,downY,12);
-            var second = newAtom(downX+20*Math.sqrt(3),downY-20,12);
-            newBond(first,second);
+            switch(moveFlag){
+                case 0:
+                case 1:
+                case 2:
+            }
             break;
+        case 2:
+        case 3:
     }
 };
 
@@ -62,7 +115,7 @@ function newAtom(x,y,num){
     return q;
 }
 function newBond(a,b){
-    var q = bond.length;
+    var q = bonds.length;
     var x = (atoms[a][1]+atoms[b][1])/2;
     var y = (atoms[a][2]+atoms[b][2])/2;
     main.beginPath();
@@ -70,21 +123,72 @@ function newBond(a,b){
     main.moveTo(atoms[a][1],atoms[a][2]);
     main.lineTo(atoms[b][1],atoms[b][2]);
     main.stroke();
-    bond.push(q,x,y,a,b,1);
+    bonds.push(q,x,y,a,b,1);
 }
 function clear(layer){
     layer.clearRect(0,0,winWidth,winHeight);
 }
 function atomMark(id){
     eff1.beginPath();
-    eff1.strokeStyle = "rgba(0,0,100,0.5)";
-    eff1.arc(atoms[id][1],atoms[id][2],8,0,Math.PI*2,true);
+    eff1.strokeStyle = "rgba(0,0,255,0.5)";
+    eff1.arc(atoms[id][1],atoms[id][2],len/5,0,Math.PI*2,true);
+    eff1.fill();
+}
+function bondMark(id){
+    eff1.beginPath();
+    eff1.strokeStyle = "rgba(0,255,0,0.5)";
+    eff1.arc(atoms[id][1],atoms[id][2],len/5,0,Math.PI*2,true);
     eff1.fill();
 }
 function ring(x,y){
     eff1.beginPath();
-    eff1.strokeStyle = "rgba(0,0,100,0.5)";
-    eff1.arc(x,y,12,0,Math.PI*2,true);
+    eff1.strokeStyle = "rgba(0,0,255,0.5)";
+    eff1.arc(x,y,len*3/10,0,Math.PI*2,true);
     eff1.stroke();
 }
-
+function inRound(nowX,nowY,targetX,targetY){
+    if(Math.pow(targetX-nowX,2)+Math.pow(targetY-nowY,2)<=Math.pow((len/5)*2)){
+        return true;
+    }else{
+        return false;
+    }
+}
+function direction(nowX,nowY,targetX,targetY){
+    if(nowY-targetY==0){
+        if(nowX-targetX>=0){
+            return Math.PI/2;
+        }else{
+            return -Math.PI/2;
+        }
+    }
+    var angle = math.atan((nowX-targetX)/-(nowY-targetY));
+    if((nowY-targetY)>0){
+        angle += Math.PI;
+    }
+    if(-Math.PI*5/12<=angle&&angle<-Math.PI/4){
+        angle = -Math.PI/3;
+    }else if(-Math.PI/4<=angle&&angle<-Math.PI/12){
+        angle = -Math.PI/6;
+    }else if(-Math.PI/12<=angle&&angle<Math.PI/12){
+        angle = 0;
+    }else if(Math.PI/12<=angle&&angle<Math.PI/4){
+        angle = Math.PI/6;
+    }else if(Math.PI/4<=angle&&angle<Math.PI*5/12){
+        angle = Math.PI/3;
+    }else if(Math.PI*5/12<=angle&&angle<Math.PI*7/12){
+        angle = Math.PI/2;
+    }else if(Math.PI*7/12<=angle&&angle<Math.PI*3/4){
+        angle = Math.PI*2/3;
+    }else if(Math.PI*3/4<=angle&&angle<Math.PI*11/12){
+        angle = Math.PI*5/6;
+    }else if(Math.PI*11/12<=angle&&angle<Math.PI*13/12){
+        angle = Math.PI;
+    }else if(Math.PI*13/12<=angle&&angle<Math.PI*5/4){
+        angle = Math.PI*7/6;
+    }else if(Math.PI*5/4<=angle&&angle<Math.PI*17/12){
+        angle = Math.PI*4/3;
+    }else{
+        angle = -Math.PI/2;
+    }
+    return angle;
+}
