@@ -185,7 +185,7 @@ function newBond(a,b){
     main.moveTo(atoms[a][1],atoms[a][2]);
     main.lineTo(atoms[b][1],atoms[b][2]);
     main.stroke();
-    bonds.push(q,x,y,a,b,1);
+    bonds.push([q,x,y,a,b,1]);
 }
 function demiBond(a,b){
     eff2.beginPath();
