@@ -48,10 +48,7 @@ c4.onmousemove = function(move){
     moveY = move.offsetY;
     atoms.forEach(function(atom){
         if(inRound(moveX,moveY,atom[1],atom[2])){
-            if(moveFlag==1&&moveId!=atom[0]){
-                clear(eff1);
-                clear(eff2);
-            }else if(moveFlag==2){
+            if(moveFlag!=1||moveId!=atom[0]){
                 clear(eff1);
                 clear(eff2);
             }
@@ -144,6 +141,7 @@ c4.onmouseup = function(up){
                     radLine(downX,downY,demiAngle,true);
                     break;
                 case 1:
+                    console.log(1);
                     var a = newAtom(downX,downY,12);
                     newBond(a,moveId);
                     break;
@@ -208,7 +206,7 @@ function clear(layer){
 }
 function atomMark(id){
     eff1.beginPath();
-    eff1.strokeStyle = "rgba(0,0,255,0.5)";
+    eff1.fillStyle = "rgba(0,0,255,0.5)";
     eff1.arc(atoms[id][1],atoms[id][2],len/5,0,Math.PI*2,true);
     eff1.fill();
 }
@@ -225,7 +223,7 @@ function ring(x,y){
     eff1.stroke();
 }
 function inRound(nowX,nowY,targetX,targetY){
-    if(Math.pow(targetX-nowX,2)+Math.pow(targetY-nowY,2)<=Math.pow((len/5)*2)){
+    if(Math.pow(targetX-nowX,2)+Math.pow(targetY-nowY,2)<=Math.pow(len/5,2)){
         return true;
     }else{
         return false;
