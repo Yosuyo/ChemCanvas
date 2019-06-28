@@ -27,19 +27,20 @@ c4.onmousedown = function(down){
     downX = down.offsetX;
     downY = down.offsetY;
     if(status==0){
-        if(moveFlag==1){
-            downFlag = 1;
-            downId = moveId;
-            ring(atoms[downId][1],atoms[downId][2]);
-            return;
-        }else if(moveFlag==2){
-            downFlag = 2;
-            downId = downFlag;
-            return;
-        }else{
-            downFlag = 3;
-            ring(downX,downY);
-            return;
+        switch(moveFlag){
+            case 0:
+                downFlag = 3;
+                ring(downX,downY);
+                return;
+            case 1:
+                downFlag = 1;
+                downId = moveId;
+                ring(atoms[downId][1],atoms[downId][2]);
+                return;
+            case 2:
+                downFlag = 2;
+                downId = moveId;
+                return;
         }
     }
 };
@@ -77,7 +78,7 @@ c4.onmousemove = function(move){
             clear(eff2);
             ring(atoms[downId][1],atoms[downId][2]);
             demiAngle = ang;
-            radLine(atoms[downId][1],atoms[downId][2],demiAngle,false);
+            radLine(atoms[downId][1],atoms[downId][2],demiAngle,0);
             return;
         }
     }else if(downFlag==3){
@@ -90,7 +91,7 @@ c4.onmousemove = function(move){
             clear(eff2);
             ring(downX,downY);
             demiAngle = aang;
-            radLine(downX,downY,demiAngle,false);
+            radLine(downX,downY,demiAngle,0);
             return;
         }
     }
@@ -121,10 +122,12 @@ c4.onmouseup = function(up){
         case 1:
             switch(moveFlag){
                 case 0:
-                    radLine(atoms[downId][1],atoms[downId][2],demiAngle,true);
+                    radLine(atoms[downId][1],atoms[downId][2],demiAngle,1);
                     break;
                 case 1:
-                    newBond(downId,moveId);
+                    if(downId!=moveId){
+                        newBond(downId,moveId);
+                    }
                     break;
                 case 2:
                     break;
@@ -133,17 +136,17 @@ c4.onmouseup = function(up){
         case 2:
             if(moveFlag==2){
                 if(downId==moveId){
-                    //二重結合への変更
+                    console.log("二重結合");
+                    bondMark(moveId);
                 }
             }
             break;
         case 3:
             switch(moveFlag){
                 case 0:
-                    radLine(downX,downY,demiAngle,true);
+                    radLine(downX,downY,demiAngle,2);
                     break;
                 case 1:
-                    console.log(1);
                     var a = newAtom(downX,downY,12);
                     newBond(a,moveId);
                     break;
@@ -154,8 +157,6 @@ c4.onmouseup = function(up){
     }
     downFlag = 0;
     downId = 999;
-    moveFlag = 0;
-    moveId = 999;
     demiAngle = 1;
 };
 
@@ -273,16 +274,23 @@ function direction(nowX,nowY,targetX,targetY){
 function radLine(x,y,angle,bool){
     var newX = x+len*Math.sin(angle);
     var newY = y-len*Math.cos(angle);
-    if(bool){
-        var a = newAtom(x,y,12);
-        var b = newAtom(newX,newY,12);
-        newBond(a,b);
-    }else{
-        eff2.beginPath();
-        eff2.lineWidth = 2;
-        eff2.strokeStyle = "rgba(0,255,255,0.5)";
-        eff2.moveTo(x,y);
-        eff2.lineTo(newX,newY);
-        eff2.stroke();
+    switch(bool){
+        case 0:
+            eff2.beginPath();
+            eff2.lineWidth = 2;
+            eff2.strokeStyle = "rgba(0,255,255,0.5)";
+            eff2.moveTo(x,y);
+            eff2.lineTo(newX,newY);
+            eff2.stroke();
+            break;
+        case 1:
+            var c = newAtom(newX,newY,12);
+            newBond(downId,c);
+            break;
+        case 2:
+            var a = newAtom(x,y,12);
+            var b = newAtom(newX,newY,12);
+            newBond(a,b);
+            break;
     }
 }
