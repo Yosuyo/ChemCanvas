@@ -44,14 +44,16 @@ c4.onmousedown = function(down){
     }
 };
 c4.onmousemove = function(move){
+    console.log(moveFlag);
     moveX = move.offsetX;
     moveY = move.offsetY;
-    atoms.forEach(function(atom){
-        if(inRound(moveX,moveY,atom[1],atom[2])){
-            if(moveFlag!=1||moveId!=atom[0]){
-                clear(eff1);
-                clear(eff2);
-            }
+    var atom = atoms.find(function(nowAtom){
+        return inRound(moveX,moveY,nowAtom[1],nowAtom[2]);
+    });
+    if(atom!==void 0){
+        if(moveFlag!=1||moveId!=atom[0]){
+            clear(eff1);
+            clear(eff2);
             moveFlag = 1;
             moveId = atom[0];
             atomMark(atom[0]);
@@ -63,9 +65,9 @@ c4.onmousemove = function(move){
                 ring(downX,downY);
                 demiBond2(downX,downY,moveId);
             }
-            return;
         }
-    });
+        return;
+    }
     if(downFlag==1){
         moveFlag = 0;
         var ang = direction(moveX,moveY,atoms[downId][1],atoms[downId][2]);
@@ -92,19 +94,19 @@ c4.onmousemove = function(move){
             return;
         }
     }
-    bonds.forEach(function(bond){
-        if(inRound(downX,downY,bond[1],bond[2])){
-            if(moveFlag==1){
-                clear(eff1);
-            }else if(moveFlag==2&&moveId!=bond[0]){
-                clear(eff1);
-            }
+    var bond = bonds.find(function(nowBond){
+        return inRound(moveX,moveY,nowBond[1],nowBond[2]);
+    });
+    if(bond!==void 0){
+        if(moveFlag!=2||moveId!=bond[0]){
+            clear(eff1);
+            clear(eff2);
             moveFlag = 2;
             moveId = bond[0];
             bondMark(bond[0]);
-            return;
         }
-    });
+        return;
+    }
     clear(eff1);
     moveFlag = 0;
 };
@@ -212,8 +214,8 @@ function atomMark(id){
 }
 function bondMark(id){
     eff1.beginPath();
-    eff1.strokeStyle = "rgba(0,255,0,0.5)";
-    eff1.arc(atoms[id][1],atoms[id][2],len/5,0,Math.PI*2,true);
+    eff1.fillStyle = "rgba(0,255,0,0.5)";
+    eff1.arc(bonds[id][1],bonds[id][2],len/5,0,Math.PI*2,true);
     eff1.fill();
 }
 function ring(x,y){
