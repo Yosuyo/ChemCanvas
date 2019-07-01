@@ -52,6 +52,7 @@ c4.onmousemove = function(move){
         return inRound(moveX,moveY,nowAtom[1],nowAtom[2]);
     });
     if(atom!==void 0){
+        demiAngle = 1;
         if(moveFlag!=1||moveId!=atom[0]){
             clear(eff1);
             clear(eff2);
@@ -60,6 +61,7 @@ c4.onmousemove = function(move){
             atomMark(atom[0]);
             if(downFlag==1){
                 if(downId!=moveId){
+                    ring(atoms[downId][1],atoms[downId][2]);
                     demiBond(downId,moveId);
                 }
             }else if(downFlag==3){
@@ -70,12 +72,17 @@ c4.onmousemove = function(move){
         return;
     }
     if(downFlag==1){
+        if(moveFlag==1){
+            clear(eff1);
+            clear(eff2);
+        }
         moveFlag = 0;
         var ang = direction(moveX,moveY,atoms[downId][1],atoms[downId][2]);
         if(ang==demiAngle){
             return;
         }else{
             clear(eff2);
+            clear(eff1);
             ring(atoms[downId][1],atoms[downId][2]);
             demiAngle = ang;
             radLine(atoms[downId][1],atoms[downId][2],demiAngle,0);
@@ -136,7 +143,27 @@ c4.onmouseup = function(up){
         case 2:
             if(moveFlag==2){
                 if(downId==moveId){
-                    console.log("二重結合");
+                    switch(bonds[downId][5]){
+                        case 1:
+                            var secondBond;
+                            var sideBond = bonds.find(function(bond){
+                                return searchSideBond(downId,bond[0]);
+                            });
+                            if(sideBond==void 0){
+                                secondBond = doubleSide(bonds[downId][3],bonds[downId][4]);
+                                drawBond(secondBond[0],secondBond[1],secondBond[2],secondBond[3]);
+                                changeBond(downId,2);
+                                console.log(secondBond);
+                                console.log("二重結合");
+                            }else{
+                            }
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            break;
+                    }
+                    console.log("結合");
                     bondMark(moveId);
                 }
             }
@@ -188,6 +215,17 @@ function newBond(a,b){
     main.stroke();
     bonds.push([q,x,y,a,b,1]);
 }
+function drawBond(ax,ay,bx,by){
+    main.beginPath();
+    main.lineWidth = 2;
+    main.moveTo(ax,ay);
+    main.lineTo(bx,by);
+    main.stroke();
+}
+function changeBond(bondId,type){
+    var oldBond = bonds[bondId];
+    bonds[bondId] = [oldBond[0],oldBond[1],oldBond[2],oldBond[3],oldBond[4],type];
+}
 function demiBond(a,b){
     eff2.beginPath();
     eff2.lineWidth = 2;
@@ -231,6 +269,24 @@ function inRound(nowX,nowY,targetX,targetY){
     }else{
         return false;
     }
+}
+function getAngle(nowX,nowY,targetX,targetY){
+    //返り値:0~2π
+    if(nowY-targetY==0){
+        if(nowX-targetX>=0){
+            return Math.PI/2;
+        }else{
+            return 3*Math.PI/2;
+        }
+    }
+    var angle = Math.atan((nowX-targetX)/-(nowY-targetY));
+    if((nowY-targetY)>0){
+        angle += Math.PI;
+    }
+    if(angle<=0){
+        angle += Math.PI*2;
+    }
+    return angle;
 }
 function direction(nowX,nowY,targetX,targetY){
     if(nowY-targetY==0){
@@ -292,5 +348,46 @@ function radLine(x,y,angle,bool){
             var b = newAtom(newX,newY,12);
             newBond(a,b);
             break;
+    }
+}
+function doubleSide(a,b,c){
+    //a-b-cの結合があり、a-bが2重結合となる
+    var baAngle = getAngle(atoms[b][1],atoms[b][2],atoms[a][1],atoms[a][2]);
+    var bx,by,ax,ay;
+    if(c===void 0){
+        bx = atoms[b][1]+len/6*Math.sin(baAngle-Math.PI/4);
+        by = atoms[b][2]-len/6*Math.cos(baAngle-Math.PI/4);
+        ax = atoms[a][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
+        ay = atoms[a][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
+    }else{
+        var bcAngle = getAngle(atoms[b][1],atoms[b][2],atoms[c][1],atoms[c][2]);
+        var angle = baAngle - bcAngle;
+        if((-2*Math.PI<=angle&&angle<-Math.PI)||(0<=angle&&angle<Math.PI)){
+            bx = atoms[b][1]+len/6*Math.sin(baAngle-Math.PI/4);
+            by = atoms[b][2]-len/6*Math.cos(baAngle-Math.PI/4);
+            ax = atoms[a][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
+            ay = atoms[a][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
+        }else{
+            bx = atoms[b][1]+len/6*Math.sin(baAngle+Math.PI/4);
+            by = atoms[b][2]-len/6*Math.cos(baAngle+Math.PI/4);
+            ax = atoms[a][1]+len/6*Math.sin(baAngle+3*Math.PI/4);
+            ay = atoms[a][2]-len/6*Math.cos(baAngle+3*Math.PI/4);
+        }
+    }
+    return [bx,by,ax,ay];
+}
+function searchSideBond(downBondId,nowBondId){
+    if(downBondId==nowBondId){
+        return false;
+    }else if(bonds[downBondId][3]==bonds[nowBondId][3]){
+        return true;
+    }else if(bonds[downBondId][3]==bonds[nowBondId][4]){
+        return true;
+    }else if(bonds[downBondId][4]==bonds[nowBondId][3]){
+        return true;
+    }else if(bonds[downBondId][4]==bonds[nowBondId][4]){
+        return true;
+    }else{
+        return false;
     }
 }
