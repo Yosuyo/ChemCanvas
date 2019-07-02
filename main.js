@@ -152,15 +152,16 @@ c4.onmouseup = function(up){
                             if(sideBond==void 0){
                                 secondBond = doubleSide(bonds[downId][3],bonds[downId][4]);
                                 drawBond(secondBond[0],secondBond[1],secondBond[2],secondBond[3]);
-                                changeBond(downId,2);
                             }else{
                                 var abc = lineUpABC(downId,sideBond[0]);
                                 secondBond = doubleSide(abc[0],abc[1],abc[2]);
                                 drawBond(secondBond[0],secondBond[1],secondBond[2],secondBond[3]);
-                                changeBond(downId,2);
                             }
+                            changeBond(downId,2);
                             break;
                         case 2:
+                            drawTripleBond(bonds[downId][3],bonds[downId][4]);
+                            changeBond(downId,3);
                             break;
                         case 3:
                             break;
@@ -359,23 +360,23 @@ function doubleSide(a,b,c){
     if(c===void 0){
         console.log(baAngle);
         console.log(atoms[b][1],atoms[a][1]);
-        bx = atoms[b][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
-        by = atoms[b][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
-        ax = atoms[a][1]+len/6*Math.sin(baAngle-Math.PI/4);
-        ay = atoms[a][2]-len/6*Math.cos(baAngle-Math.PI/4);
+        bx = atoms[b][1]+len/5*Math.sin(baAngle-3*Math.PI/4);
+        by = atoms[b][2]-len/5*Math.cos(baAngle-3*Math.PI/4);
+        ax = atoms[a][1]+len/5*Math.sin(baAngle-Math.PI/4);
+        ay = atoms[a][2]-len/5*Math.cos(baAngle-Math.PI/4);
     }else{
         var bcAngle = getAngle(atoms[b][1],atoms[b][2],atoms[c][1],atoms[c][2]);
         var angle = baAngle - bcAngle;
         if((-2*Math.PI<=angle&&angle<-Math.PI)||(0<=angle&&angle<Math.PI)){
-            bx = atoms[b][1]+len/6*Math.sin(baAngle+3*Math.PI/4);
-            by = atoms[b][2]-len/6*Math.cos(baAngle+3*Math.PI/4);
-            ax = atoms[a][1]+len/6*Math.sin(baAngle+Math.PI/4);
-            ay = atoms[a][2]-len/6*Math.cos(baAngle+Math.PI/4);
+            bx = atoms[b][1]+len/5*Math.sin(baAngle+3*Math.PI/4);
+            by = atoms[b][2]-len/5*Math.cos(baAngle+3*Math.PI/4);
+            ax = atoms[a][1]+len/5*Math.sin(baAngle+Math.PI/4);
+            ay = atoms[a][2]-len/5*Math.cos(baAngle+Math.PI/4);
         }else{
-            bx = atoms[b][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
-            by = atoms[b][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
-            ax = atoms[a][1]+len/6*Math.sin(baAngle-Math.PI/4);
-            ay = atoms[a][2]-len/6*Math.cos(baAngle-Math.PI/4);
+            bx = atoms[b][1]+len/5*Math.sin(baAngle-3*Math.PI/4);
+            by = atoms[b][2]-len/5*Math.cos(baAngle-3*Math.PI/4);
+            ax = atoms[a][1]+len/5*Math.sin(baAngle-Math.PI/4);
+            ay = atoms[a][2]-len/5*Math.cos(baAngle-Math.PI/4);
         }
     }
     return [bx,by,ax,ay];
@@ -415,4 +416,18 @@ function lineUpABC(mainBondId,sideBondId){
     c = bonds[sideBondId][3];
     }
     return [a,b,c];
+}
+function drawTripleBond(a,b){
+    var baAngle = getAngle(atoms[b][1],atoms[b][2],atoms[a][1],ay = atoms[a][2]);
+    var bx,by,ax,ay;
+    bx = atoms[b][1]+len/5*Math.sin(baAngle+3*Math.PI/4);
+    by = atoms[b][2]-len/5*Math.cos(baAngle+3*Math.PI/4);
+    ax = atoms[a][1]+len/5*Math.sin(baAngle+Math.PI/4);
+    ay = atoms[a][2]-len/5*Math.cos(baAngle+Math.PI/4);
+    drawBond(ax,ay,bx,by);
+    bx = atoms[b][1]+len/5*Math.sin(baAngle-3*Math.PI/4);
+    by = atoms[b][2]-len/5*Math.cos(baAngle-3*Math.PI/4);
+    ax = atoms[a][1]+len/5*Math.sin(baAngle-Math.PI/4);
+    ay = atoms[a][2]-len/5*Math.cos(baAngle-Math.PI/4);
+    drawBond(ax,ay,bx,by);
 }
