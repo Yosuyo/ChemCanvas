@@ -153,9 +153,11 @@ c4.onmouseup = function(up){
                                 secondBond = doubleSide(bonds[downId][3],bonds[downId][4]);
                                 drawBond(secondBond[0],secondBond[1],secondBond[2],secondBond[3]);
                                 changeBond(downId,2);
-                                console.log(secondBond);
-                                console.log("二重結合");
                             }else{
+                                var abc = lineUpABC(downId,sideBond[0]);
+                                secondBond = doubleSide(abc[0],abc[1],abc[2]);
+                                drawBond(secondBond[0],secondBond[1],secondBond[2],secondBond[3]);
+                                changeBond(downId,2);
                             }
                             break;
                         case 2:
@@ -209,7 +211,7 @@ function newBond(a,b){
     var x = (atoms[a][1]+atoms[b][1])/2;
     var y = (atoms[a][2]+atoms[b][2])/2;
     main.beginPath();
-    main.lineWidth = 2;
+    main.lineWidth = 1;
     main.moveTo(atoms[a][1],atoms[a][2]);
     main.lineTo(atoms[b][1],atoms[b][2]);
     main.stroke();
@@ -217,7 +219,7 @@ function newBond(a,b){
 }
 function drawBond(ax,ay,bx,by){
     main.beginPath();
-    main.lineWidth = 2;
+    main.lineWidth = 1;
     main.moveTo(ax,ay);
     main.lineTo(bx,by);
     main.stroke();
@@ -327,10 +329,10 @@ function direction(nowX,nowY,targetX,targetY){
     }
     return angle;
 }
-function radLine(x,y,angle,bool){
+function radLine(x,y,angle,pattern){
     var newX = x+len*Math.sin(angle);
     var newY = y-len*Math.cos(angle);
-    switch(bool){
+    switch(pattern){
         case 0:
             eff2.beginPath();
             eff2.lineWidth = 2;
@@ -355,23 +357,25 @@ function doubleSide(a,b,c){
     var baAngle = getAngle(atoms[b][1],atoms[b][2],atoms[a][1],atoms[a][2]);
     var bx,by,ax,ay;
     if(c===void 0){
-        bx = atoms[b][1]+len/6*Math.sin(baAngle-Math.PI/4);
-        by = atoms[b][2]-len/6*Math.cos(baAngle-Math.PI/4);
-        ax = atoms[a][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
-        ay = atoms[a][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
+        console.log(baAngle);
+        console.log(atoms[b][1],atoms[a][1]);
+        bx = atoms[b][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
+        by = atoms[b][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
+        ax = atoms[a][1]+len/6*Math.sin(baAngle-Math.PI/4);
+        ay = atoms[a][2]-len/6*Math.cos(baAngle-Math.PI/4);
     }else{
         var bcAngle = getAngle(atoms[b][1],atoms[b][2],atoms[c][1],atoms[c][2]);
         var angle = baAngle - bcAngle;
         if((-2*Math.PI<=angle&&angle<-Math.PI)||(0<=angle&&angle<Math.PI)){
-            bx = atoms[b][1]+len/6*Math.sin(baAngle-Math.PI/4);
-            by = atoms[b][2]-len/6*Math.cos(baAngle-Math.PI/4);
-            ax = atoms[a][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
-            ay = atoms[a][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
+            bx = atoms[b][1]+len/6*Math.sin(baAngle+3*Math.PI/4);
+            by = atoms[b][2]-len/6*Math.cos(baAngle+3*Math.PI/4);
+            ax = atoms[a][1]+len/6*Math.sin(baAngle+Math.PI/4);
+            ay = atoms[a][2]-len/6*Math.cos(baAngle+Math.PI/4);
         }else{
-            bx = atoms[b][1]+len/6*Math.sin(baAngle+Math.PI/4);
-            by = atoms[b][2]-len/6*Math.cos(baAngle+Math.PI/4);
-            ax = atoms[a][1]+len/6*Math.sin(baAngle+3*Math.PI/4);
-            ay = atoms[a][2]-len/6*Math.cos(baAngle+3*Math.PI/4);
+            bx = atoms[b][1]+len/6*Math.sin(baAngle-3*Math.PI/4);
+            by = atoms[b][2]-len/6*Math.cos(baAngle-3*Math.PI/4);
+            ax = atoms[a][1]+len/6*Math.sin(baAngle-Math.PI/4);
+            ay = atoms[a][2]-len/6*Math.cos(baAngle-Math.PI/4);
         }
     }
     return [bx,by,ax,ay];
@@ -390,4 +394,25 @@ function searchSideBond(downBondId,nowBondId){
     }else{
         return false;
     }
+}
+function lineUpABC(mainBondId,sideBondId){
+    var a,b,c;
+    if(bonds[mainBondId][3]==bonds[sideBondId][3]){
+    a = bonds[mainBondId][4];
+    b = bonds[mainBondId][3];
+    c = bonds[sideBondId][4];
+    }else if(bonds[mainBondId][3]==bonds[sideBondId][4]){
+    a = bonds[mainBondId][4];
+    b = bonds[mainBondId][3];
+    c = bonds[sideBondId][3];
+    }else if(bonds[mainBondId][4]==bonds[sideBondId][3]){
+    a = bonds[mainBondId][3];
+    b = bonds[mainBondId][4];
+    c = bonds[sideBondId][4];
+    }else if(bonds[mainBondId][4]==bonds[sideBondId][4]){
+    a = bonds[mainBondId][3];
+    b = bonds[mainBondId][4];
+    c = bonds[sideBondId][3];
+    }
+    return [a,b,c];
 }
