@@ -309,7 +309,7 @@ function inRound(nowX, nowY, targetX, targetY) {
     }
 }
 function getAngle(nowX, nowY, targetX, targetY) {
-    //返り値:0~2π
+    //戻り値:0~2π
     if (nowY - targetY == 0) {
         if (nowX - targetX >= 0) {
             return Math.PI / 2;
@@ -484,7 +484,7 @@ function drawTripleBond(bondId) {
 }
 function listUpSideBond(a) {
     var bondList = [];
-    for (var i = 0, l = bonds.length; i < l; l++) {
+    for (var i = 0, l = bonds.length; i < l; i++) {
         if (bonds[i][3] == a) {
             bondList.push(i);
         } else if (bonds[i][4] == a) {
@@ -495,13 +495,13 @@ function listUpSideBond(a) {
 }
 function refreshId(listType) { //listType 0:atoms 1:bonds
     if (listType == 0) {
-        for (var i = 0, l = atoms.length; i < l; l++) {
+        for (var i = 0, l = atoms.length; i < l; i++) {
             if (atoms[i][0] != i) {
                 atoms[i][0] = i;
             }
         }
     } else if (listType == 1) {
-        for (var i = 0, l = bonds.length; i < l; l++) {
+        for (var i = 0, l = bonds.length; i < l; i++) {
             if (bonds[i][0] != i) {
                 bonds[i][0] = i;
             }
