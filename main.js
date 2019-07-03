@@ -134,6 +134,8 @@ c4.onmouseup = function(up){
                 case 1:
                     if(downId!=moveId){
                         newBond(downId,moveId);
+                    }else{
+                        atomMark(downId);
                     }
                     break;
                 case 2:
@@ -166,7 +168,6 @@ c4.onmouseup = function(up){
                         case 3:
                             break;
                     }
-                    console.log("結合");
                     bondMark(moveId);
                 }
             }
