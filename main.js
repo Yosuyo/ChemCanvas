@@ -29,7 +29,8 @@ window.onload = function () {
 c4.onmousedown = function (down) {
     downX = down.offsetX;
     downY = down.offsetY;
-    if (60 <= downX && downX <= 670 && 30 <= downY && downY <= 570) { //キャンバス内
+    //キャンバス内
+    if (60 <= downX && downX <= 670 && 30 <= downY && downY <= 570) {
         if (status == 0) {
             switch (moveFlag) {
                 case 0:
@@ -69,10 +70,17 @@ c4.onmousedown = function (down) {
                     return;
             }
         } else if(status == 2){
-            //ここに原子周期表判定
-            status = 4;
+            atomSym = inAtomList(downX,downY);
+            if(atomSym==void 0){
+                return;
+            }else{
+                display.innerHTML = atomSym;
+                status = 4;
+                return;
+            }
         }
-    } else { //ボタン等
+    } else {
+        //キャンバス外
         if (0 <= downX && downX <= 50 && 50 <= downY && downY <= 100) {
             status = 0;
             display.innerHTML = "デフォルト";
@@ -101,6 +109,9 @@ c4.onmousemove = function (move) {
     console.log(moveFlag);
     moveX = move.offsetX;
     moveY = move.offsetY;
+    if(status==2){
+        return;
+    }
     var atom = atoms.find(function (nowAtom) {
         return inRound(moveX, moveY, nowAtom[1], nowAtom[2]);
     });
@@ -576,10 +587,21 @@ function showAtomList(){
     eff2.font="40px 'sunselif'";
     eff2.fillStyle="rgb(0,0,0)";
     //以下拡張予定
-    y=120+39;
+    y=120+41;
     for(i=0,l=symbolList1.length;i<l;i++){
         x=i*60+129;
         eff2.fillText(symbolList1[i],x,y);
     }
     //以上拡張予定
+}
+function inAtomList(x,y){
+    var symbol;
+    //以下拡張予定
+    for(i=0,l=symbolList1.length;i<l;i++){
+        if(120+60*i<=x&&x<=170+60*i&&120<=y&&y<=170){
+            symbol = symbolList1[i];
+        }
+    }
+    //以上拡張予定
+    return symbol;
 }
