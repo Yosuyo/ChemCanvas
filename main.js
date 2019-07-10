@@ -1,7 +1,9 @@
 var winWidth = 700; //キャンバス横幅
 var winHeight = 600; //キャンバス縦幅
 var len = 40; //結合長
+var symbolList1 = ["C","O","H","N"];
 
+var display = document.getElementById("show");
 var c1 = document.getElementById("canvas1");
 var base = c1.getContext("2d");
 var c2 = document.getElementById("canvas2");
@@ -17,6 +19,7 @@ var downId = 999;
 var moveFlag = 0;//0:デフォルト 1:原子 2:結合
 var moveId = 999;
 var demiAngle = 1;
+var atomSym;
 
 window.onload = function () {
     background();
@@ -65,14 +68,21 @@ c4.onmousedown = function (down) {
                     redraw();
                     return;
             }
+        } else if(status == 2){
+            //ここに原子周期表判定
+            status = 4;
         }
     } else { //ボタン等
         if (0 <= downX && downX <= 50 && 50 <= downY && downY <= 100) {
             status = 0;
+            display.innerHTML = "デフォルト";
         } else if (0 <= downX && downX <= 50 && 110 <= downY && downY <= 160) {
-            //ボタン2
+            status = 2;
+            showAtomList();
+            display.innerHTML ="原子";
         } else if (0 <= downX && downX <= 50 && 170 <= downY && downY <= 220) {
             status = 1;
+            display.innerHTML ="削除";
         } else if (0 <= downX && downX <= 50 && 230 <= downY && downY <= 280) {
             downFlag = 0;
             downId = 999;
@@ -162,6 +172,9 @@ c4.onmousemove = function (move) {
     moveFlag = 0;
 };
 c4.onmouseup = function (up) {
+    if(status==2){
+        return;
+    }
     clear(eff1);
     clear(eff2);
     upX = up.offsetX;
@@ -210,7 +223,7 @@ c4.onmouseup = function (up) {
                     radLine(downX, downY, demiAngle, 2);
                     break;
                 case 1:
-                    var a = newAtom(downX, downY, 12);
+                    var a = newAtom(downX, downY, "C");
                     newBond(a, moveId);
                     break;
                 case 2:
@@ -237,9 +250,9 @@ function setButton() {
     base.fillStyle = "rgb(50,0,100)";
     base.fillRect(0, 230, 50, 50);
 }
-function newAtom(x, y, num) {
+function newAtom(x, y, symbol) {
     var q = atoms.length;
-    atoms.push([q, x, y, num]);
+    atoms.push([q, x, y, symbol]);
     return q;
 }
 function newBond(a, b) {
@@ -302,7 +315,7 @@ function ring(x, y) {
     eff1.stroke();
 }
 function inRound(nowX, nowY, targetX, targetY) {
-    if (Math.pow(targetX - nowX, 2) + Math.pow(targetY - nowY, 2) <= Math.pow(len / 5, 2)) {
+    if (Math.pow(targetX - nowX, 2) + Math.pow(targetY - nowY, 2) <= Math.pow(len / 4, 2)) {
         return true;
     } else {
         return false;
@@ -378,12 +391,12 @@ function radLine(x, y, angle, pattern) {
             eff2.stroke();
             break;
         case 1:
-            var c = newAtom(newX, newY, 12);
+            var c = newAtom(newX, newY, "C");
             newBond(downId, c);
             break;
         case 2:
-            var a = newAtom(x, y, 12);
-            var b = newAtom(newX, newY, 12);
+            var a = newAtom(x, y, "C");
+            var b = newAtom(newX, newY, "C");
             newBond(a, b);
             break;
     }
@@ -501,9 +514,9 @@ function refreshId(listType) { //listType 0:atoms 1:bonds
             }
         }
     } else if (listType == 1) {
-        for (var i = 0, l = bonds.length; i < l; i++) {
-            if (bonds[i][0] != i) {
-                bonds[i][0] = i;
+        for (var j = 0, n = bonds.length; j < n; j++) {
+            if (bonds[j][0] != j) {
+                bonds[j][0] = j;
             }
         }
     }
@@ -534,4 +547,39 @@ function deleteSideAtom(bondId) {
     if (sideBond.length == 1) {
         atoms.splice(bonds[bondId][4]);
     }
+}
+function putAtom(id,symbol){
+    atoms[id][3] = symbol;
+    main.fillText(symbol,atoms[id][1],atoms[id][2]);
+}
+function showAtomList(){
+    eff2.fillStyle="rgb(100,100,100)";
+    eff2.fillRect(100,100,390,270);
+    eff2.strokeStyle="rgb(0,0,0)";
+    eff2.lineWidth=2;
+    eff2.beginPath();
+    eff2.moveTo(100,100);
+    eff2.lineTo(490,100);
+    eff2.lineTo(490,370);
+    eff2.lineTo(100,370);
+    eff2.lineTo(100,100);
+    eff2.stroke();
+    eff2.fillStyle="rgb(255,255,255)";
+    var x,y,i,j;
+    for(j=0;j<4;j++){
+        y = j*60+120;
+        for(i = 0;i<6;i++){
+            x = i*60+120;
+            eff2.fillRect(x,y,50,50);
+        }
+    }
+    eff2.font="40px 'sunselif'";
+    eff2.fillStyle="rgb(0,0,0)";
+    //以下拡張予定
+    y=120+39;
+    for(i=0,l=symbolList1.length;i<l;i++){
+        x=i*60+129;
+        eff2.fillText(symbolList1[i],x,y);
+    }
+    //以上拡張予定
 }
