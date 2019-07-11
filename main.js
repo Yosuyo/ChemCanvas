@@ -1,7 +1,7 @@
 var winWidth = 700; //キャンバス横幅
 var winHeight = 600; //キャンバス縦幅
 var len = 40; //結合長
-var symbolList1 = ["C","O","H","N"];
+var symbolList1 = ["C","O","H","N","S"];
 
 var display = document.getElementById("show");
 var c1 = document.getElementById("canvas1");
@@ -69,15 +69,22 @@ c4.onmousedown = function (down) {
                     redraw();
                     return;
             }
-        } else if(status == 2){
+        } else if(status==2){
             atomSym = inAtomList(downX,downY);
             if(atomSym==void 0){
                 return;
             }else{
                 display.innerHTML = atomSym;
-                status = 4;
+                clear(eff2);
+                status = 3;
                 return;
             }
+        } else if(status==3){
+            if(moveFlag==1){
+                atoms[moveId][3] = atomSym;
+                setAtom(atoms[moveId][1],atoms[moveId][2]);
+            }
+            return;
         }
     } else {
         //キャンバス外
@@ -85,6 +92,12 @@ c4.onmousedown = function (down) {
             status = 0;
             display.innerHTML = "デフォルト";
         } else if (0 <= downX && downX <= 50 && 110 <= downY && downY <= 160) {
+            if(status==2){
+                clear(eff2);
+                status = 0;
+                display.innerHTML = "デフォルト";
+                return;
+            }
             status = 2;
             showAtomList();
             display.innerHTML ="原子";
@@ -102,6 +115,8 @@ c4.onmousedown = function (down) {
             clear(eff2);
             atoms = [];
             bonds = [];
+            status = 0;
+            display.innerHTML = "デフォルト";
         }
     }
 };
@@ -183,7 +198,7 @@ c4.onmousemove = function (move) {
     moveFlag = 0;
 };
 c4.onmouseup = function (up) {
-    if(status==2){
+    if(status==2||status==3){
         return;
     }
     clear(eff1);
@@ -252,14 +267,26 @@ function background() {
     base.fillRect(60, 30, 610, 540);
 }
 function setButton() {
-    base.fillStyle = "rgb(0,100,50)";
-    base.fillRect(0, 50, 50, 50);
-    base.fillStyle = "rgb(100,0,50)";
-    base.fillRect(0, 110, 50, 50);
-    base.fillStyle = "rgb(0,50,100)";
-    base.fillRect(0, 170, 50, 50);
-    base.fillStyle = "rgb(50,0,100)";
-    base.fillRect(0, 230, 50, 50);
+    var img1 = new Image(50,50);
+    img1.src = "images/bond_icon.png";
+    img1.onload = function(){
+        base.drawImage(img1,0,50);
+    };
+    var img2 = new Image(50,50);
+    img2.src = "images/hetero_icon.png";
+    img2.onload = function(){
+        base.drawImage(img2,0,110);
+    };
+    var img3 = new Image(50,50);
+    img3.src = "images/eraser_icon.png";
+    img3.onload = function(){
+        base.drawImage(img3,0,170);
+    };
+    var img4 = new Image(50,50);
+    img4.src = "images/delete_icon.png";
+    img4.onload = function(){
+        base.drawImage(img4,0,230);
+    };
 }
 function newAtom(x, y, symbol) {
     var q = atoms.length;
@@ -547,6 +574,12 @@ function redraw() {
                 break;
         }
     }
+    for(var j = 0, la = atoms.length; j < la; j++){
+        if(atoms[j][3]!="C"){
+            atomSym = atoms[j][3];
+            setAtom(atoms[j][1],atoms[j][2]);
+        }
+    }
 }
 function deleteSideAtom(bondId) {
     var sideBond;
@@ -589,7 +622,7 @@ function showAtomList(){
     //以下拡張予定
     y=120+41;
     for(i=0,l=symbolList1.length;i<l;i++){
-        x=i*60+129;
+        x=i*60+131;
         eff2.fillText(symbolList1[i],x,y);
     }
     //以上拡張予定
@@ -604,4 +637,13 @@ function inAtomList(x,y){
     }
     //以上拡張予定
     return symbol;
+}
+function setAtom(x,y){
+    main.beginPath();
+    main.fillStyle = "rgb(255,255,255)";
+    main.arc(x,y, 10, 0, Math.PI * 2, true);
+    main.fill();
+    main.font="20px 'sunselif'";
+    main.fillStyle="rgb(0,0,0)";
+    main.fillText(atomSym,x-8,y+8);
 }
