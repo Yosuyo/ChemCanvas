@@ -55,7 +55,7 @@ c4.onmousedown = function (down) {
                     var deleteBond = listUpSideBond(moveId);
                     atoms.splice(moveId, 1);
                     for (var i = 0, l = deleteBond.length; i < l; i++) {
-                        bonds.splice(deleteBond[i], 1);
+                        bonds.splice(deleteBond[l-i-1], 1);
                     }
                     refreshId(0);
                     refreshId(1);
@@ -121,7 +121,6 @@ c4.onmousedown = function (down) {
     }
 };
 c4.onmousemove = function (move) {
-    console.log(moveFlag);
     moveX = move.offsetX;
     moveY = move.offsetY;
     if(status==2){
@@ -444,8 +443,6 @@ function doubleSide(a, b, c) {
     var baAngle = getAngle(atoms[b][1], atoms[b][2], atoms[a][1], atoms[a][2]);
     var bx, by, ax, ay;
     if (c === void 0) {
-        console.log(baAngle);
-        console.log(atoms[b][1], atoms[a][1]);
         bx = atoms[b][1] + len / 5 * Math.sin(baAngle - 3 * Math.PI / 4);
         by = atoms[b][2] - len / 5 * Math.cos(baAngle - 3 * Math.PI / 4);
         ax = atoms[a][1] + len / 5 * Math.sin(baAngle - Math.PI / 4);
@@ -545,10 +542,22 @@ function listUpSideBond(a) {
     return bondList;
 }
 function refreshId(listType) { //listType 0:atoms 1:bonds
+    var changedAtom = [];
     if (listType == 0) {
         for (var i = 0, l = atoms.length; i < l; i++) {
             if (atoms[i][0] != i) {
+                changedAtom.push([atoms[i][0],i]);
                 atoms[i][0] = i;
+            }
+        }
+        console.log(changedAtom);
+        for (var k = 0, m = bonds.length; k < m; k++) {
+            for(var o = 0,p = changedAtom.length; o < p; o++){
+                if(changedAtom[o][0]==bonds[k][3]){
+                    bonds[k][3] = changedAtom[o][1];
+                }else if(changedAtom[o][0]==bonds[k][4]){
+                    bonds[k][4] = changedAtom[o][1];
+                }
             }
         }
     } else if (listType == 1) {
@@ -581,7 +590,7 @@ function redraw() {
         }
     }
 }
-function deleteSideAtom(bondId) {
+function deleteSideAtom(bondId) { //ココの改善
     var sideBond;
     sideBond = listUpSideBond(bonds[bondId][3]);
     if (sideBond.length == 1) {
