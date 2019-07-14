@@ -53,18 +53,17 @@ c4.onmousedown = function (down) {
                     return;
                 case 1:
                     var deleteBond = listUpSideBond(moveId);
+                    console.log("delete atom", moveId, "in 56");
                     atoms.splice(moveId, 1);
+                    refreshId(0);
                     for (var i = 0, l = deleteBond.length; i < l; i++) {
                         bonds.splice(deleteBond[l-i-1], 1);
                     }
-                    refreshId(0);
                     refreshId(1);
                     redraw();
                     return;
                 case 2:
-                    deleteSideAtom(moveId);
                     bonds.splice(moveId, 1);
-                    refreshId(0);
                     refreshId(1);
                     redraw();
                     return;
@@ -509,7 +508,7 @@ function drawDoubleBond(bondId) {
         secondBond = doubleSide(bonds[bondId][3], bonds[bondId][4]);
         drawBond(secondBond[0], secondBond[1], secondBond[2], secondBond[3]);
     } else {
-        var abc = lineUpABC(downId, sideBond[0]);
+        var abc = lineUpABC(bondId, sideBond[0]);
         secondBond = doubleSide(abc[0], abc[1], abc[2]);
         drawBond(secondBond[0], secondBond[1], secondBond[2], secondBond[3]);
     }
@@ -550,7 +549,6 @@ function refreshId(listType) { //listType 0:atoms 1:bonds
                 atoms[i][0] = i;
             }
         }
-        console.log(changedAtom);
         for (var k = 0, m = bonds.length; k < m; k++) {
             for(var o = 0,p = changedAtom.length; o < p; o++){
                 if(changedAtom[o][0]==bonds[k][3]){
@@ -587,23 +585,14 @@ function redraw() {
         if(atoms[j][3]!="C"){
             atomSym = atoms[j][3];
             setAtom(atoms[j][1],atoms[j][2]);
+        }else{
+            var sideBond = listUpSideBond(j);
+            if(sideBond.length==0){
+                atomSym = "C";
+                setAtom(atoms[j][1],atoms[j][2]);
+            }
         }
     }
-}
-function deleteSideAtom(bondId) { //ココの改善
-    var sideBond;
-    sideBond = listUpSideBond(bonds[bondId][3]);
-    if (sideBond.length == 1) {
-        atoms.splice(bonds[bondId][3]);
-    }
-    sideBond = listUpSideBond(bonds[bondId][4]);
-    if (sideBond.length == 1) {
-        atoms.splice(bonds[bondId][4]);
-    }
-}
-function putAtom(id,symbol){
-    atoms[id][3] = symbol;
-    main.fillText(symbol,atoms[id][1],atoms[id][2]);
 }
 function showAtomList(){
     eff2.fillStyle="rgb(100,100,100)";
